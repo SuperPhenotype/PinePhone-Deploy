@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# PinePhone-Pro Post Installation Setup Script
+# Author: James Goodwin Email: SuperPhenotype@Gmail.com
+
+cd /home/superphenotype/mobian
+echo "3"
+sleep 1
+echo "2"
+sleep 1
+echo "1"
+sleep 1
+echo "Let us begin...."
+sleep 1
+echo "We'll connect into the PinePhone-Pro, and drop some files."
+sftp -v mobian@192.168.2.253 <<EOF
+cd /home/mobian/Pictures/
+put tifa.png
+put tifachillin.png
+cd /home/mobian/.config/gtk-3.0/
+put gtk.css
+cd /
+put ppp-mod
+EOF
