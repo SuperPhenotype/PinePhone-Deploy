@@ -2,23 +2,37 @@
 
 # PinePhone-Pro Post Installation Setup Script
 # Author: James Goodwin Email: SuperPhenotype@Gmail.com
-
-cd /home/superphenotype/mobian
-echo "3"
-sleep 1
-echo "2"
-sleep 1
-echo "1"
-sleep 1
+PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/:/usr/local/bin:/usr/local/sbin:/$HOME/
+IP=$1
+USER=$2
+PAUSE='sleep 1'
+#### ASK INFO ####
+PAUSE
 echo "Let us begin...."
-sleep 1
 echo "We'll connect into the PinePhone-Pro, and drop some files."
-sftp -v mobian@192.168.2.253 <<EOF
-cd /home/mobian/Pictures/
+ifconfig
+PAUSE
+echo "Phone IP: Home Subnet = 10.0.0.27"
+read -p "enter IP address:" IP
+read -p "enter login username:" USER
+PAUSE
+#### FILE DROP ####
+sftp -v $2@$1 <<'EOF'
+cd $HOME/Pictures/
 put tifa.png
 put tifachillin.png
-cd /home/mobian/.config/gtk-3.0/
-put gtk.css
-cd /
-put ppp-mod
 EOF
+#### SSH ####
+ssh $2@$1 <<'ENDSSH'
+sudo apk add --no-interactive nano micro git wget curl axel zsh rclone-browser 
+sudo rm /etc/apk/repositories
+sudo touch /etc/apk/repositories
+sudo echo https://mirror.postmarketos.org/postmarketos/master
+sudo echo https://mirror.dst.ca/alpine/edge/main
+sudo echo https://mirror.dst.ca/alpine/edge/community
+sudo echo https://mirror.dst.ca/alpine/edge/testing
+sudo echo https://ftp.acc.umu.se/mirror/alpinelinux.org/edge/main
+sudo echo https://ftp.acc.umu.se/mirror/alpinelinux.org/edge/community
+sudo echo https://ftp.acc.umu.se/mirror/alpinelinux.org/edge/testing
+sudo apk update && sudo apk upgrade --no-interactive --latest
+ENDSSH
