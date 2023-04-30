@@ -2,29 +2,27 @@
 
 # PinePhone-Pro Post Installation Setup Script
 # Author: James Goodwin Email: SuperPhenotype@Gmail.com
-PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/:/usr/local/bin:/usr/local/sbin:/$HOME/
+# This is specific to PostMarketOS for the time being.
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/$HOME/.bin:/$HOME/bin
 IP=$1
 USER=$2
-PAUSE='sleep 1'
+PAUSE=$(sleep 1)
 #### ASK INFO ####
 PAUSE
-echo "Let us begin...."
-echo "We'll connect into the PinePhone-Pro, and drop some files."
 ifconfig
 PAUSE
 echo "Phone IP: Home Subnet = 10.0.0.27"
 read -p "enter IP address:" IP
 read -p "enter login username:" USER
 PAUSE
-#### FILE DROP ####
-sftp -v $2@$1 <<'EOF'
+#### REMOTE FILE DROP ####
+sftp -v $2@$1 <<ENDSFTP
 cd $HOME/Pictures/
 put tifa.png
 put tifachillin.png
-EOF
-#### SSH ####
-ssh $2@$1 <<'ENDSSH'
-sudo apk add --no-interactive nano micro git wget curl axel zsh rclone-browser 
+ENDSFTP
+#### REMOTE SSH ####
+ssh $2@$1 <<ENDSSH
 sudo rm /etc/apk/repositories
 sudo touch /etc/apk/repositories
 sudo echo https://mirror.postmarketos.org/postmarketos/master
@@ -35,4 +33,23 @@ sudo echo https://ftp.acc.umu.se/mirror/alpinelinux.org/edge/main
 sudo echo https://ftp.acc.umu.se/mirror/alpinelinux.org/edge/community
 sudo echo https://ftp.acc.umu.se/mirror/alpinelinux.org/edge/testing
 sudo apk update && sudo apk upgrade --no-interactive --latest
+sudo apk add --no-interactive nano micro git wget curl axel zsh rclone-browser
 ENDSSH
+PAUSE
+echo "Package Keeper has been configured on the Remote Host"
+#### Clone Repos ####
+ssh $2@$1 <<ENDSSH2
+cd $HOME/.gitrepos
+git clone --depth=1 https://github.com/ryanoasis/nerd-fonts ~/.gitrepos/nerd-fonts
+cd nerd-fonts
+./install.sh Meslo
+ENDSSH2
+PAUSE 
+ssh $2@$1 <<ENDSSH3
+cd $HOME/.gitrepos
+git clone --depth=1 https://github.com/romkatv/powerlevel10k ~/.gitrepos/powerlevel10k
+echo 'source ~/.gitrepos/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+sudo usermod -a -
+ENDSSH3
+PAUSE
+
